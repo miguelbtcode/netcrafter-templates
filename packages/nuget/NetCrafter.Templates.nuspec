@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>NetCrafter.Templates</id>
+    <version>1.0.0</version>
+    <title>.NET Architecture Templates</title>
+    <authors>Miguel Barreto</authors>
+    <owners>Miguel Barreto</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/miguelbtcode/dotnet-architecture-templates.git</projectUrl>
+    <repository type="git" url="https://github.com/miguelbtcode/dotnet-architecture-templates.git" />
+    <icon>icon.png</icon>
+    <readme>README.md</readme>
+    <description>
+      Enterprise .NET Architecture Templates for modern application development.
+
+      This package contains professional project templates including:
+      - Clean Architecture (DDD, CQRS, MediatR)
+
+      Features:
+      - Multiple database providers (SQL Server, PostgreSQL, SQLite)
+      - Docker support with docker-compose
+      - Complete testing infrastructure (Unit, Integration, E2E, Architecture tests)
+      - Health checks and monitoring
+      - Swagger/OpenAPI documentation
+      - Serilog logging
+      - Best practices and coding standards
+    </description>
+    <summary>Professional .NET templates for Clean Architecture with DDD, CQRS, and multiple database support</summary>
+    <releaseNotes>
+      v1.0.0
+      - Initial release
+      - Clean Architecture template
+      - Support for .NET 8.0 and 9.0
+      - Multiple database providers: SQL Server, PostgreSQL, SQLite
+      - Docker and docker-compose support
+      - Comprehensive test projects
+      - Health checks configuration
+      - Minimal APIs option
+    </releaseNotes>
+    <copyright>Copyright © 2025 DotNet Generator</copyright>
+    <tags>dotnet template clean-architecture cqrs ddd mediatr entity-framework docker postgresql sqlserver sqlite</tags>
+    <packageTypes>
+      <packageType name="Template" />
+    </packageTypes>
+    <language>en-US</language>
+  </metadata>
+  <files>
+    <!-- Clean Architecture Template -->
+    <file src="../../templates/clean-architecture/.template.config/template.json" target=".template.config/template.json" />
+    <file src="../../templates/clean-architecture/.template.config/dotnetcli.host.json" target=".template.config/dotnetcli.host.json" />
+
+    <!-- Source files -->
+    <file src="../../templates/clean-architecture/src/**" target="src" exclude="**/bin/**;**/obj/**;**/*.user;**/*.tmp" />
+
+    <!-- Test files -->
+    <file src="../../templates/clean-architecture/tests/**" target="tests" exclude="**/bin/**;**/obj/**;**/*.user;**/*.tmp" />
+
+    <!-- Root files -->
+    <file src="../../templates/clean-architecture/CleanArchitecture.sln" target="CleanArchitecture.sln" />
+    <file src="../../templates/clean-architecture/README.md" target="TEMPLATE_README.md" />
+    <file src="../../templates/clean-architecture/docker-compose.yml" target="docker-compose.yml" />
+    <file src="../../templates/clean-architecture/Dockerfile" target="Dockerfile" />
+
+    <!-- Package Metadata -->
+    <file src="README.md" target="" />
+    <file src="icon.png" target="" />
+  </files>
+</package>

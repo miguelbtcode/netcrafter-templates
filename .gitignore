@@ -4,8 +4,14 @@
 # Internal Workflow Files (Not for Public Repo)
 # ==============================================
 CLAUDE.md
-packages/nuget/
-scripts/
+packages/nuget/output/
+scripts/*.sh
+
+# ==============================================
+# CI/CD Scripts (Keep these tracked)
+# ==============================================
+!scripts/Build.ps1
+!scripts/Push.ps1
 
 # ==============================================
 # .NET Build Outputs
@@ -53,8 +59,7 @@ bld/
 # ==============================================
 *.nupkg
 *.snupkg
-**/packages/*
-!**/packages/build/
+packages/nuget/output/
 *.nuget.props
 *.nuget.targets
 project.lock.json
