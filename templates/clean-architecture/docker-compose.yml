@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  presentation:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cleanarch-presentation
+    ports:
+      - "5000:8080"
+      - "5001:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Data Source=/app/data/CleanArchitecture.db
+      - Serilog__WriteTo__0__Name=Console
+      - Serilog__WriteTo__1__Name=File
+      - Serilog__WriteTo__1__Args__path=/app/logs/log-.txt
+      - Serilog__WriteTo__1__Args__rollingInterval=Day
+      - Serilog__WriteTo__1__Args__retainedFileCountLimit=30
+      - Serilog__WriteTo__1__Args__outputTemplate=[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}] [{Level:u3}] {Message:lj}{NewLine}{Exception}
+    volumes:
+      - app-logs:/app/logs
+      - sqlite-data:/app/data
+    networks:
+      - cleanarch-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  sqlite-data:
+    driver: local
+    name: cleanarch-sqlite-data
+  app-logs:
+    driver: local
+    name: cleanarch-app-logs
+
+networks:
+  cleanarch-network:
+    driver: bridge
+    name: cleanarch-network

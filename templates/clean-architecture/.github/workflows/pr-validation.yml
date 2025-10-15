@@ -1,0 +1,182 @@
+name: Pull Request Validation
+
+on:
+  pull_request:
+    branches: [main, develop]
+    types: [opened, synchronize, reopened]
+
+env:
+  DOTNET_VERSION: "9.0.x"
+  SOLUTION_PATH: "CleanArchitecture.sln"
+
+jobs:
+  # Job 1: PR Validation
+  validate-pr:
+    name: Validate Pull Request
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Validate PR title
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            build
+            ci
+            chore
+            revert
+          requireScope: false
+        continue-on-error: true
+
+      - name: Check for merge conflicts
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          if ! git merge-tree $(git merge-base HEAD origin/${{ github.base_ref }}) HEAD origin/${{ github.base_ref }} | grep -q '<<<<<<<'; then
+            echo "✅ No merge conflicts detected"
+          else
+            echo "❌ Merge conflicts detected"
+            exit 1
+          fi
+
+      - name: Check file size
+        run: |
+          max_size=1048576 # 1MB
+          large_files=$(find . -type f -size +${max_size}c -not -path "./.git/*" -not -path "./bin/*" -not -path "./obj/*")
+          if [ -n "$large_files" ]; then
+            echo "::warning::Large files detected: $large_files"
+          fi
+
+  # Job 2: Build and Test
+  build-and-test:
+    name: Build and Test PR
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.SOLUTION_PATH }}
+
+      - name: Build solution
+        run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
+
+      - name: Run all tests
+        run: dotnet test ${{ env.SOLUTION_PATH }} --configuration Release --no-build --verbosity normal --logger "trx" --collect:"XPlat Code Coverage"
+
+      - name: Code coverage report
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: "**/coverage.cobertura.xml"
+          badge: true
+          format: markdown
+          output: both
+        continue-on-error: true
+
+      - name: Add coverage PR comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: github.event_name == 'pull_request'
+        with:
+          recreate: true
+          path: code-coverage-results.md
+        continue-on-error: true
+
+  # Job 3: Code Quality Check
+  code-quality:
+    name: Code Quality Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.SOLUTION_PATH }}
+
+      - name: Build solution
+        run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
+
+      - name: Run code format check
+        run: |
+          dotnet format --verify-no-changes --no-restore 2>&1 | tee format-check.txt
+          if grep -q "error" format-check.txt; then
+            echo "::error::Code formatting issues detected"
+            exit 1
+          fi
+        continue-on-error: true
+
+  # Job 4: Security Check
+  security-check:
+    name: Security Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.SOLUTION_PATH }}
+
+      - name: Check for vulnerable packages
+        run: |
+          dotnet list ${{ env.SOLUTION_PATH }} package --vulnerable --include-transitive 2>&1 | tee security-check.txt
+          if grep -q "has the following vulnerable packages" security-check.txt; then
+            echo "::error::Vulnerable packages detected"
+            cat security-check.txt
+            exit 1
+          fi
+
+  # Job 5: PR Summary
+  pr-summary:
+    name: PR Summary
+    runs-on: ubuntu-latest
+    needs: [validate-pr, build-and-test, code-quality, security-check]
+    if: always()
+
+    steps:
+      - name: Generate PR summary
+        run: |
+          echo "## Pull Request Validation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Results" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ PR Validation: ${{ needs.validate-pr.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Build & Test: ${{ needs.build-and-test.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Code Quality: ${{ needs.code-quality.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Security Check: ${{ needs.security-check.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "- Review code changes" >> $GITHUB_STEP_SUMMARY
+          echo "- Approve and merge if all checks pass" >> $GITHUB_STEP_SUMMARY

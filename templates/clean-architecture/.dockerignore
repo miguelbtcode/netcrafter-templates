@@ -1,0 +1,42 @@
+# Build results
+**/bin/
+**/obj/
+**/out/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Rider
+.idea/
+
+# Test results
+**/TestResults/
+
+# NuGet
+*.nupkg
+**/packages/
+
+# Docker
+**/.dockerignore
+**/.env
+**/docker-compose*
+**Dockerfile*
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+**/*.md
+**/docs/
+
+# Tests
+**/tests/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+azure-pipelines.yml

@@ -1,0 +1,118 @@
+# NetCrafter Templates - Git Ignore Configuration
+
+# ==============================================
+# Internal Workflow Files (Not for Public Repo)
+# ==============================================
+CLAUDE.md
+packages/nuget/
+scripts/
+
+# ==============================================
+# .NET Build Outputs
+# ==============================================
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.cache
+*.vspscc
+*.vssscc
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# ==============================================
+# Visual Studio / Rider / VS Code
+# ==============================================
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+.idea/
+*.DotSettings.user
+
+# ==============================================
+# NuGet
+# ==============================================
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+*.nuget.props
+*.nuget.targets
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# ==============================================
+# Test Results
+# ==============================================
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.trx
+*.coverage
+*.coveragexml
+TestResults/
+coverage/
+test-output/
+
+# ==============================================
+# ASP.NET Scaffolding
+# ==============================================
+ScaffoldingReadMe.txt
+
+# ==============================================
+# ReSharper
+# ==============================================
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# ==============================================
+# macOS
+# ==============================================
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# ==============================================
+# Windows
+# ==============================================
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+
+# ==============================================
+# Linux
+# ==============================================
+*~
+
+# ==============================================
+# Temporary Files
+# ==============================================
+*.tmp
+*.temp
+*.log
+*.swp
+*.swo
+*~
